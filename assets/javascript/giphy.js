@@ -1,56 +1,81 @@
-// create an array to be searched
-// loop through the array and create buttons for them
-// create a div to display gifs
-// function
-// link buttons to ajax
-// search by:
-// var movie = $(this).attr("data-name");
-// on click start and stop
-// when new button is clicked, replace old gifs
-// (give them rating labels? or any label?)
-// search function to add new animal, append to array
+
+var topics = ["Interstellar", "The Dark Knight", "Inception", "Pirates of the Carribean", "Anchorman", "Kill Bill", "Star Wars", "Lord of the Rings", "Harry Potter", "Jurassic Park", "The Matrix", "Ace Ventura", "Dirty Dancing", "Forrest Gump", "Mad Max", "Venom", "The Avengers"];
+
+
+function displayMovieInfo() {
+    $(".movie").on("click", function () {
+        var movieToBeSearched = $(this).text().trim();
+        var movie = movieToBeSearched.split(" ").join("");
+
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + movie + "&api_key=FHh9mWC90FyTtVYHXSy5uFhHubUvyLWb&limit=10";
+
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+        }).then(function (response) {
+            var results = response.data;
+            for (var i = 0; i < results.length; i++) {
+                var rating = results[i].rating;
+                var movieDiv = $("<div>");
+
+                var p = $("<p>");
+                p.text("Rating: " + rating);
+
+                var movieGif = $("<img>").addClass("gif");
+                movieGif.attr("src", results[i].images.fixed_height.url);
+
+                console.log(response);
+
+                $('body').on('click', '.gif', function () {
+                    var src = $(this).attr("src");
+                    if ($(this).hasClass('playing')) {
+                        $(this).attr('src', src.replace(/\.gif/i, "_s.gif"))
+                        $(this).removeClass('playing');
+                    } else {
+                        $(this).addClass('playing');
+                        $(this).attr('src', src.replace(/\_s.gif/i, ".gif"))
+                    }
+                });
+
+
+                movieDiv.prepend(movieGif);
+                movieDiv.prepend(p);
+                movieDiv.prepend(movieToBeSearched + ":");
+
+
+                console.log(response)
+                $("#gifsDiv").prepend(movieDiv);
+            };
+        });
+    });
+};
 
 function renderButtons() {
-    var buttons = ""
-    var movie = ""
-    var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + movie + "&api_key=FHh9mWC90FyTtVYHXSy5uFhHubUvyLWb&limit=1";
 
-    $("#searchForm").empty();
-    var movies = ["Interstellar", "The Dark Knight", "Inception", "Pirates of the Carribean", "Anchorman", "Kill Bill", "Star Wars", "Lord of the Rings", "Harry Potter", "The Blues Brothers", "The Matrix", "Ace Ventura", "Dirty Dancing", "Spongebob the Movie", "Mad Max", "Venom", "The Avengers"];
-    for (var i = 0; i < movies.length; i++) {
-        var buttons = $("<button>").attr("id", "moviesButton").text(movies[i])
-        buttons.appendTo("#buttonsDiv");
-        $(buttons).on("click", function (event) {
-            var movie = $(this).text();
-            $.ajax({
-                url: queryURL,
-                method: "GET"
-            }).then(function (response) {
-                $("#gifsDiv").append('<img class="gif" src="' + response.data[0].embed_url + '">');
-            });
-        });
-
-
+    $("#buttonsDiv").empty();
+    for (var i = 0; i < topics.length; i++) {
+        a = $("<button>");
+        a.addClass("movie");
+        a.attr("data-name", topics[i]);
+        a.text(topics[i]);
+        $("#buttonsDiv").append(a);
     };
 };
 
+
+$(".btn").on("click", function (event) {
+
+    event.preventDefault();
+    var searchedMovie = $("#searchForm").val();
+    var movie2 = searchedMovie.split(" ").join("");
+    topics.push(movie2);
+    renderButtons();
+});
+
+$(document).on("click", ".movie", displayMovieInfo);
 renderButtons();
 
 
-// function displayGifs() {
 
 
-    // var movie = $(this).attr("BUTTON ID");
-    // var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + movie + "?&api_key=FHh9mWC90FyTtVYHXSy5uFhHubUvyLWb&limit=1";
-
-    // $.ajax({
-    //     url: queryURL,
-    //     method: "GET"
-    //   }).then(function(response) {
-    //     for (var i=0; i<movies.length; i++) {
-    //     console.log(response);
-    //   }})
-    // };
-
-    // displayGifs();
 
